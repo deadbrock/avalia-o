@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #a2122a;
+  --secondary: #354a80;
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffffff;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Botão com gradiente animado */
+.btn-gradient {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Gradiente Flow para Hero */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  background-size: 200% 200%;
+  animation: gradientFlow 24s ease-in-out infinite;
+}
+
+/* Efeito neon pulsante */
+.animate-neon {
+  box-shadow: 0 0 10px color-mix(in oklab, var(--primary), white 30%), 
+              0 0 20px var(--primary);
+  animation: neonPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+  0%, 100% { 
+    box-shadow: 0 0 8px var(--primary), 
+                0 0 18px color-mix(in oklab, var(--primary), white 20%); 
+  }
+  50% { 
+    box-shadow: 0 0 16px var(--primary), 
+                0 0 30px color-mix(in oklab, var(--primary), white 35%); 
+  }
+}
+
+/* Fundo com gradiente animado */
+.animated-gradient {
+  background: radial-gradient(ellipse at top left, 
+                              color-mix(in oklab, var(--primary), transparent 70%), 
+                              transparent 40%),
+              radial-gradient(ellipse at bottom right, 
+                              color-mix(in oklab, var(--secondary), transparent 70%), 
+                              transparent 40%);
+  filter: blur(40px) saturate(120%);
+  opacity: 0.6;
+}
+
+/* Animação de float para partículas */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(162, 18, 42, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 80% 30%, rgba(162, 18, 42, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 30% 70%, rgba(53, 74, 128, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 70% 80%, rgba(53, 74, 128, 0.07) 1px, transparent 1px);
+  background-size: 200px 200px, 260px 260px, 220px 220px, 240px 240px;
+  animation: float 14s linear infinite;
+  pointer-events: none;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--primary), var(--secondary));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
