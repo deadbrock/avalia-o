@@ -70,26 +70,67 @@ export default function AvaliacoesPage() {
   }, [searchTerm, filterNota, avaliacoes]);
 
   const exportarCSV = () => {
-    const headers = ["Nome", "Email", "Local", "Data", "Avaliação", "Recomenda"];
-    const rows = filteredAvaliacoes.map((av) => [
-      av.nome,
-      av.email,
-      av.local,
-      av.data,
-      av.avaliacaoGeral,
-      av.recomendaria,
-    ]);
+    try {
+      // Cabeçalhos do CSV
+      const headers = [
+        'ID',
+        'Data da Avaliação',
+        'Nome',
+        'Email',
+        'Telefone',
+        'Local',
+        'Data do Serviço',
+        'Avaliação Geral',
+        'Atendimento',
+        'Qualidade',
+        'Pontualidade',
+        'Postura',
+        'Gestão',
+        'Recomendaria',
+        'Elogios',
+        'Sugestões'
+      ];
 
-    const csvContent = [
-      headers.join(";"),
-      ...rows.map((row) => row.join(";")),
-    ].join("\n");
+      // Dados
+      const rows = filteredAvaliacoes.map(av => [
+        av.id,
+        new Date(av.dataAvaliacao).toLocaleDateString('pt-BR'),
+        av.nome,
+        av.email,
+        av.telefone || '',
+        av.local,
+        new Date(av.data).toLocaleDateString('pt-BR'),
+        av.avaliacaoGeral,
+        av.atendimento,
+        av.qualidade,
+        av.pontualidade,
+        av.postura,
+        av.gestao,
+        av.recomendaria,
+        av.elogios || '',
+        av.sugestoes || ''
+      ]);
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `avaliacoes_${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
+      // Criar CSV
+      const csvContent = [
+        headers.join(';'),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(';'))
+      ].join('\n');
+
+      // Adicionar BOM para UTF-8
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // Download
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `avaliacoes-fg-services-${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+    } catch (error) {
+      console.error('Erro ao exportar CSV:', error);
+      alert('Erro ao exportar CSV. Tente novamente.');
+    }
   };
 
   return (

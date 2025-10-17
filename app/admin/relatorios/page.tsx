@@ -7,7 +7,12 @@ import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
-import { gerarPDFPlanoAcao } from "@/lib/pdfGenerator";
+import { 
+  gerarPDFPlanoAcao,
+  gerarPDFRelatorioMensal,
+  gerarPDFRelatorioSatisfacao,
+  gerarPDFRelatorioDetalhado
+} from "@/lib/pdfGenerator";
 
 interface PlanoAcao {
   id: number;
@@ -21,26 +26,83 @@ interface PlanoAcao {
   dataCriacao: string;
 }
 
+interface Avaliacao {
+  id: number;
+  nome: string;
+  email: string;
+  telefone?: string;
+  local: string;
+  data: string;
+  avaliacaoGeral: string;
+  atendimento: string;
+  qualidade: string;
+  pontualidade: string;
+  postura: string;
+  gestao: string;
+  recomendaria: string;
+  elogios?: string;
+  sugestoes?: string;
+  dataAvaliacao: string;
+}
+
 export default function RelatoriosPage() {
   const [planos, setPlanos] = useState<PlanoAcao[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [loading, setLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("planosAcao");
-    if (stored) {
-      setPlanos(JSON.parse(stored));
+    const storedPlanos = localStorage.getItem("planosAcao");
+    if (storedPlanos) {
+      setPlanos(JSON.parse(storedPlanos));
+    }
+
+    const storedAvaliacoes = localStorage.getItem("avaliacoes");
+    if (storedAvaliacoes) {
+      setAvaliacoes(JSON.parse(storedAvaliacoes));
     }
   }, []);
 
   const gerarRelatorio = (tipo: string) => {
-    if (tipo === "Plano de Ação") {
-      if (planos.length === 0) {
-        alert("Nenhum plano de ação cadastrado para gerar relatório.");
-        return;
+    setLoading(tipo);
+    
+    setTimeout(() => {
+      try {
+        if (tipo === "Plano de Ação") {
+          if (planos.length === 0) {
+            alert("Nenhum plano de ação cadastrado para gerar relatório.");
+            setLoading(null);
+            return;
+          }
+          gerarPDFPlanoAcao(planos);
+        } else if (tipo === "Relatório Mensal") {
+          if (avaliacoes.length === 0) {
+            alert("Nenhuma avaliação disponível para gerar relatório.");
+            setLoading(null);
+            return;
+          }
+          gerarPDFRelatorioMensal(avaliacoes);
+        } else if (tipo === "Relatório de Satisfação") {
+          if (avaliacoes.length === 0) {
+            alert("Nenhuma avaliação disponível para gerar relatório.");
+            setLoading(null);
+            return;
+          }
+          gerarPDFRelatorioSatisfacao(avaliacoes);
+        } else if (tipo === "Relatório Detalhado") {
+          if (avaliacoes.length === 0) {
+            alert("Nenhuma avaliação disponível para gerar relatório.");
+            setLoading(null);
+            return;
+          }
+          gerarPDFRelatorioDetalhado(avaliacoes);
+        }
+      } catch (error) {
+        console.error('Erro ao gerar relatório:', error);
+        alert('Erro ao gerar relatório. Tente novamente.');
       }
-      gerarPDFPlanoAcao(planos);
-    } else {
-      alert(`Gerando relatório: ${tipo}`);
-    }
+      
+      setLoading(null);
+    }, 500);
   };
 
   return (
@@ -117,9 +179,10 @@ export default function RelatoriosPage() {
                       variant="outline"
                       onClick={() => gerarRelatorio(relatorio.titulo)}
                       className="w-full"
+                      disabled={loading === relatorio.titulo}
                     >
                       <Download className="w-4 h-4" />
-                      Gerar PDF
+                      {loading === relatorio.titulo ? 'Gerando...' : 'Gerar PDF'}
                     </Button>
                   </Card>
                 </motion.div>
