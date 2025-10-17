@@ -1,15 +1,46 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Download, Calendar, TrendingUp } from "lucide-react";
+import { FileText, Download, Calendar, TrendingUp, Target } from "lucide-react";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
+import { gerarPDFPlanoAcao } from "@/lib/pdfGenerator";
+
+interface PlanoAcao {
+  id: number;
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  prioridade: 'alta' | 'media' | 'baixa';
+  status: 'pendente' | 'em-progresso' | 'concluido';
+  responsavel: string;
+  prazo: string;
+  dataCriacao: string;
+}
 
 export default function RelatoriosPage() {
+  const [planos, setPlanos] = useState<PlanoAcao[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("planosAcao");
+    if (stored) {
+      setPlanos(JSON.parse(stored));
+    }
+  }, []);
+
   const gerarRelatorio = (tipo: string) => {
-    alert(`Gerando relatório: ${tipo}`);
+    if (tipo === "Plano de Ação") {
+      if (planos.length === 0) {
+        alert("Nenhum plano de ação cadastrado para gerar relatório.");
+        return;
+      }
+      gerarPDFPlanoAcao(planos);
+    } else {
+      alert(`Gerando relatório: ${tipo}`);
+    }
   };
 
   return (
@@ -30,10 +61,17 @@ export default function RelatoriosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
+                titulo: "Plano de Ação",
+                descricao: "Relatório completo para o time operacional",
+                icon: Target,
+                cor: "from-primary to-red-700",
+                badge: "PDF",
+              },
+              {
                 titulo: "Relatório Mensal",
                 descricao: "Resumo completo do mês atual",
                 icon: Calendar,
-                cor: "from-primary to-red-700",
+                cor: "from-secondary to-blue-700",
               },
               {
                 titulo: "Relatório de Satisfação",
@@ -45,7 +83,7 @@ export default function RelatoriosPage() {
                 titulo: "Relatório Detalhado",
                 descricao: "Todas as avaliações com detalhes",
                 icon: FileText,
-                cor: "from-secondary to-blue-700",
+                cor: "from-purple-500 to-purple-600",
               },
             ].map((relatorio, index) => {
               const Icon = relatorio.icon;
@@ -57,10 +95,17 @@ export default function RelatoriosPage() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Card hover className="p-6">
-                    <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-r ${relatorio.cor} flex items-center justify-center mb-4`}
-                    >
-                      <Icon className="w-6 h-6 text-white" />
+                    <div className="flex items-start justify-between mb-4">
+                      <div
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-r ${relatorio.cor} flex items-center justify-center`}
+                      >
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      {relatorio.badge && (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">
+                          {relatorio.badge}
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">
                       {relatorio.titulo}

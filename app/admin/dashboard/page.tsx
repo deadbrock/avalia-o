@@ -39,11 +39,17 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Carregar avaliações
-    const stored = localStorage.getItem("avaliacoes");
-    if (stored) {
-      const data = JSON.parse(stored);
-      setAvaliacoes(data);
+    // Carregar avaliações da API
+    const loadAvaliacoes = async () => {
+      try {
+        const response = await fetch('/api/avaliacoes');
+        const result = await response.json();
+        
+        if (result.success) {
+          const data = result.data;
+          setAvaliacoes(data);
+          // Também salvar no localStorage para fallback
+          localStorage.setItem("avaliacoes", JSON.stringify(data));
       
       // Calcular estatísticas
       const now = new Date();
@@ -82,15 +88,34 @@ export default function DashboardPage() {
       );
       const mediaGeral = data.length > 0 ? somaNotas / data.length : 0;
 
-      setStats({
-        total: data.length,
-        mesAtual,
-        mediaGeral: Number(mediaGeral.toFixed(1)),
-        recomendacao: data.length > 0 ? Math.round((recomendaSim / data.length) * 100) : 0,
-        excelentes,
-        problematicas,
-      });
-    }
+          setStats({
+            total: data.length,
+            mesAtual,
+            mediaGeral: Number(mediaGeral.toFixed(1)),
+            recomendacao: data.length > 0 ? Math.round((recomendaSim / data.length) * 100) : 0,
+            excelentes,
+            problematicas,
+          });
+        } else {
+          // Fallback para localStorage
+          const stored = localStorage.getItem("avaliacoes");
+          if (stored) {
+            const data = JSON.parse(stored);
+            setAvaliacoes(data);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar avaliações:', error);
+        // Fallback para localStorage
+        const stored = localStorage.getItem("avaliacoes");
+        if (stored) {
+          const data = JSON.parse(stored);
+          setAvaliacoes(data);
+        }
+      }
+    };
+    
+    loadAvaliacoes();
   }, []);
 
   const avaliacoesRecentes = avaliacoes.slice(0, 5);

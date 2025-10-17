@@ -115,20 +115,35 @@ export default function AvaliarPage() {
 
     setLoading(true);
 
-    // Simulação de envio
-    setTimeout(() => {
-      // Salvar no localStorage
-      const avaliacoes = JSON.parse(localStorage.getItem("avaliacoes") || "[]");
-      avaliacoes.unshift({
-        ...formData,
-        id: Date.now(),
-        dataAvaliacao: new Date().toISOString(),
+    try {
+      // Enviar para API
+      const response = await fetch('/api/avaliacoes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-      localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
 
+      const result = await response.json();
+
+      if (result.success) {
+        // Também salvar no localStorage para compatibilidade
+        const avaliacoes = JSON.parse(localStorage.getItem("avaliacoes") || "[]");
+        avaliacoes.unshift(result.data);
+        localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
+
+        setLoading(false);
+        setSubmitted(true);
+      } else {
+        setError(result.error || "Erro ao enviar avaliação");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Erro ao enviar avaliação:', error);
+      setError("Erro ao enviar avaliação. Tente novamente.");
       setLoading(false);
-      setSubmitted(true);
-    }, 1500);
+    }
   };
 
   const updateField = (field: keyof FormData, value: string) => {
