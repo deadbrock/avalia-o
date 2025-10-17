@@ -21,9 +21,10 @@ async function readAvaliacoes() {
 // GET - Buscar avaliação por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const avaliacoes = await readAvaliacoes();
     const avaliacao = avaliacoes.find((av: any) => av.id === parseInt(params.id));
     
