@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { redisGet, redisSet } from '@/lib/redis';
 
-// Endpoint para migrar dados do localStorage para Vercel KV
+// Endpoint para migrar dados do localStorage para Redis
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Buscar dados existentes no KV
-    const existentes = await kv.get<any[]>('avaliacoes') || [];
+    // Buscar dados existentes no Redis
+    const existentes = await redisGet<any[]>('avaliacoes') || [];
     
     // Mesclar dados (evitar duplicatas por ID)
     const idsExistentes = new Set(existentes.map(av => av.id));
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     
     // Combinar e salvar
     const todosDados = [...existentes, ...novosRegistros];
-    await kv.set('avaliacoes', todosDados);
+    await redisSet('avaliacoes', todosDados);
     
     return NextResponse.json({
       success: true,
@@ -46,16 +46,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Endpoint para verificar conexão com KV
+// Endpoint para verificar conexão com Redis
 export async function GET(request: NextRequest) {
   try {
     // Testar conexão
-    const avaliacoes = await kv.get<any[]>('avaliacoes');
-    const planosAcao = await kv.get<any[]>('planosAcao');
+    const avaliacoes = await redisGet<any[]>('avaliacoes');
+    const planosAcao = await redisGet<any[]>('planosAcao');
     
     return NextResponse.json({
       success: true,
-      message: 'Conexão com Vercel KV funcionando!',
+      message: 'Conexão com Redis funcionando!',
       avaliacoes: {
         total: avaliacoes?.length || 0,
         dados: avaliacoes || []
@@ -67,13 +67,13 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Erro ao conectar com KV:', error);
+    console.error('Erro ao conectar com Redis:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Erro ao conectar com Vercel KV',
+        error: 'Erro ao conectar com Redis',
         details: error instanceof Error ? error.message : 'Erro desconhecido',
-        hint: 'Verifique se as variáveis KV_REST_API_URL e KV_REST_API_TOKEN estão configuradas'
+        hint: 'Verifique se a variável REDIS_URL está configurada'
       },
       { status: 500 }
     );

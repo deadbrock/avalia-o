@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { redisGet } from '@/lib/redis';
 
 // GET - Buscar avaliação por ID
 export async function GET(
@@ -9,8 +9,8 @@ export async function GET(
   try {
     const params = await context.params;
     
-    // Buscar avaliações do Vercel KV
-    const avaliacoes = await kv.get<any[]>('avaliacoes') || [];
+    // Buscar avaliações do Redis
+    const avaliacoes = await redisGet<any[]>('avaliacoes') || [];
     const avaliacao = avaliacoes.find((av: any) => av.id === parseInt(params.id));
     
     if (!avaliacao) {

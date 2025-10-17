@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { redisGet, redisSet } from '@/lib/redis';
 
 // GET - Listar todas as avaliações
 export async function GET(request: NextRequest) {
   try {
-    // Buscar avaliações do Vercel KV
-    const avaliacoes = await kv.get<any[]>('avaliacoes') || [];
+    // Buscar avaliações do Redis
+    const avaliacoes = await redisGet<any[]>('avaliacoes') || [];
     
     return NextResponse.json({
       success: true,
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Buscar avaliações existentes
-    const avaliacoes = await kv.get<any[]>('avaliacoes') || [];
+    const avaliacoes = await redisGet<any[]>('avaliacoes') || [];
     
     // Criar nova avaliação
     const novaAvaliacao = {
@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
     // Adicionar ao início do array
     avaliacoes.unshift(novaAvaliacao);
     
-    // Salvar no Vercel KV
-    await kv.set('avaliacoes', avaliacoes);
+    // Salvar no Redis
+    await redisSet('avaliacoes', avaliacoes);
     
     return NextResponse.json({
       success: true,
