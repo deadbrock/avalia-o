@@ -33,15 +33,41 @@ interface Avaliacao {
   telefone?: string;
   local: string;
   data: string;
+  
+  // Atendimento e comunicação
+  cordialidade: string;
+  comunicacao: string;
+  agilidade: string;
+  
+  // Qualidade do serviço
+  limpezaOrganizacao: string;
+  banheirosVestiarios: string;
+  pisos: string;
+  materiaisEquipamentos: string;
+  protocolosSeguranca: string;
+  
+  // Pontualidade e frequência
+  cumprimentoHorarios: string;
+  reforcoLimpeza: string;
+  substituicao: string;
+  
+  // Postura profissional
+  responsabilidade: string;
+  apresentacaoPessoal: string;
+  comportamento: string;
+  
+  // Gestão e supervisão
+  acompanhamentoSupervisor: string;
+  correcaoNaoConformidades: string;
+  gerenciamentoContrato: string;
+  
+  // Satisfação geral
   avaliacaoGeral: string;
-  atendimento: string;
-  qualidade: string;
-  pontualidade: string;
-  postura: string;
-  gestao: string;
   recomendaria: string;
-  elogios?: string;
-  sugestoes?: string;
+  melhoriaArea?: string;
+  melhoriaDescricao?: string;
+  elogio?: string;
+  
   dataAvaliacao: string;
 }
 
