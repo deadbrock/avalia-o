@@ -24,20 +24,15 @@ interface Avaliacao {
   email: string;
   local: string;
   data: string;
-  nota: number;
-  comentario: string;
-  aspectos: {
-    qualidade: number;
-    pontualidade: number;
-    profissionalismo: number;
-    atendimento: number;
-  };
+  avaliacaoGeral: string;
+  recomendaria?: string;
+  elogio?: string;
+  melhoriaDescricao?: string;
   dataAvaliacao: string;
 }
 
 export default function AvaliacoesPage() {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
-  const [filtroNota, setFiltroNota] = useState<number>(0);
 
   useEffect(() => {
     // Carregar avaliações do localStorage
@@ -53,15 +48,9 @@ export default function AvaliacoesPage() {
           email: "maria@email.com",
           local: "Apartamento - São Paulo",
           data: "2025-10-10",
-          nota: 5,
-          comentario:
-            "Serviço excepcional! A equipe foi muito atenciosa e deixou tudo impecável. Super recomendo!",
-          aspectos: {
-            qualidade: 5,
-            pontualidade: 5,
-            profissionalismo: 5,
-            atendimento: 5,
-          },
+          avaliacaoGeral: "Excelente",
+          recomendaria: "Sim",
+          elogio: "Serviço excepcional! A equipe foi muito atenciosa e deixou tudo impecável. Super recomendo!",
           dataAvaliacao: "2025-10-11T10:30:00",
         },
         {
@@ -70,15 +59,9 @@ export default function AvaliacoesPage() {
           email: "joao@email.com",
           local: "Casa - Campinas",
           data: "2025-10-08",
-          nota: 4,
-          comentario:
-            "Muito bom! Apenas um pequeno atraso no início, mas o trabalho foi excelente.",
-          aspectos: {
-            qualidade: 5,
-            pontualidade: 3,
-            profissionalismo: 4,
-            atendimento: 4,
-          },
+          avaliacaoGeral: "Boa",
+          recomendaria: "Sim",
+          melhoriaDescricao: "Apenas um pequeno atraso no início, mas o trabalho foi excelente.",
           dataAvaliacao: "2025-10-09T14:20:00",
         },
         {
@@ -87,15 +70,9 @@ export default function AvaliacoesPage() {
           email: "ana@email.com",
           local: "Escritório - São Paulo",
           data: "2025-10-05",
-          nota: 5,
-          comentario:
-            "Trabalho impecável! A atenção aos detalhes foi surpreendente. Voltarei a contratar com certeza.",
-          aspectos: {
-            qualidade: 5,
-            pontualidade: 5,
-            profissionalismo: 5,
-            atendimento: 5,
-          },
+          avaliacaoGeral: "Excelente",
+          recomendaria: "Sim",
+          elogio: "Trabalho impecável! A atenção aos detalhes foi surpreendente. Voltarei a contratar com certeza.",
           dataAvaliacao: "2025-10-06T09:15:00",
         },
       ];
@@ -104,27 +81,23 @@ export default function AvaliacoesPage() {
     }
   }, []);
 
-  const avaliacoesFiltradas =
-    filtroNota === 0
-      ? avaliacoes
-      : avaliacoes.filter((av) => av.nota === filtroNota);
+  const notasMap: { [key: string]: number } = {
+    Excelente: 5,
+    Boa: 4,
+    Regular: 3,
+    Ruim: 2,
+    Péssima: 1,
+  };
 
   const mediaGeral =
     avaliacoes.length > 0
       ? (
-          avaliacoes.reduce((acc, av) => acc + av.nota, 0) / avaliacoes.length
+          avaliacoes.reduce((acc, av) => acc + (notasMap[av.avaliacaoGeral] || 0), 0) / avaliacoes.length
         ).toFixed(1)
       : "0.0";
 
-  const distribuicaoNotas = {
-    5: avaliacoes.filter((av) => av.nota === 5).length,
-    4: avaliacoes.filter((av) => av.nota === 4).length,
-    3: avaliacoes.filter((av) => av.nota === 3).length,
-    2: avaliacoes.filter((av) => av.nota === 2).length,
-    1: avaliacoes.filter((av) => av.nota === 1).length,
-  };
-
-  const renderStars = (nota: number, size: "sm" | "md" = "md") => {
+  const renderStars = (avaliacaoGeral: string, size: "sm" | "md" = "md") => {
+    const nota = notasMap[avaliacaoGeral] || 0;
     const starSize = size === "md" ? "w-5 h-5" : "w-4 h-4";
     return (
       <div className="flex gap-1">
@@ -195,7 +168,11 @@ export default function AvaliacoesPage() {
               </h3>
               <p className="text-gray-600 font-medium">Avaliação Média</p>
               <div className="mt-3 flex justify-center">
-                {renderStars(Math.round(parseFloat(mediaGeral)))}
+                {renderStars(
+                  Object.keys(notasMap).find(
+                    (key) => notasMap[key] === Math.round(parseFloat(mediaGeral))
+                  ) || "Regular"
+                )}
               </div>
             </Card>
 
@@ -218,7 +195,9 @@ export default function AvaliacoesPage() {
               <h3 className="text-4xl font-bold text-gray-900 mb-2">
                 {avaliacoes.length > 0
                   ? Math.round(
-                      (avaliacoes.filter((av) => av.nota >= 4).length /
+                      (avaliacoes.filter(
+                        (av) => av.recomendaria === "Sim"
+                      ).length /
                         avaliacoes.length) *
                         100
                     )
@@ -229,154 +208,92 @@ export default function AvaliacoesPage() {
             </Card>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Sidebar - Filtros */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="lg:col-span-1"
-            >
-              <Card className="sticky top-24">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-primary" />
-                  Filtros
-                </h2>
-
-                <div className="space-y-4">
-                  <button
-                    onClick={() => setFiltroNota(0)}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                      filtroNota === 0
-                        ? "bg-gradient-to-r from-primary to-red-700 text-white"
-                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Todas</span>
-                      <Badge
-                        variant={filtroNota === 0 ? "gradient" : "primary"}
-                        className="bg-white/20 text-white"
-                      >
-                        {avaliacoes.length}
-                      </Badge>
-                    </div>
-                  </button>
-
-                  {[5, 4, 3, 2, 1].map((nota) => (
-                    <button
-                      key={nota}
-                      onClick={() => setFiltroNota(nota)}
-                      className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                        filtroNota === nota
-                          ? "bg-gradient-to-r from-primary to-red-700 text-white"
-                          : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {renderStars(nota, "sm")}
-                        </div>
-                        <Badge
-                          variant={filtroNota === nota ? "gradient" : "primary"}
-                          className={
-                            filtroNota === nota
-                              ? "bg-white/20 text-white"
-                              : ""
-                          }
-                        >
-                          {distribuicaoNotas[nota as keyof typeof distribuicaoNotas]}
-                        </Badge>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+          {/* Lista de Avaliações */}
+          <div className="space-y-6">
+            {avaliacoes.length === 0 ? (
+              <Card className="text-center py-12">
+                <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Nenhuma avaliação encontrada
+                </h3>
+                <p className="text-gray-600">
+                  Seja o primeiro a avaliar nosso serviço!
+                </p>
               </Card>
-            </motion.div>
-
-            {/* Lista de Avaliações */}
-            <div className="lg:col-span-3 space-y-6">
-              {avaliacoesFiltradas.length === 0 ? (
-                <Card className="text-center py-12">
-                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Nenhuma avaliação encontrada
-                  </h3>
-                  <p className="text-gray-600">
-                    {filtroNota > 0
-                      ? `Não há avaliações com ${filtroNota} estrelas ainda.`
-                      : "Seja o primeiro a avaliar nosso serviço!"}
-                  </p>
-                </Card>
-              ) : (
-                avaliacoesFiltradas.map((avaliacao, index) => (
-                  <motion.div
-                    key={avaliacao.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 * index }}
-                  >
-                    <Card hover gradient>
-                      <div className="relative z-10">
-                        {/* Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                              {avaliacao.nome}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                              <div className="flex items-center gap-1">
-                                <MapPin className="w-4 h-4" />
-                                {avaliacao.local}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {formatarData(avaliacao.dataAvaliacao)}
-                              </div>
+            ) : (
+              avaliacoes.map((avaliacao, index) => (
+                <motion.div
+                  key={avaliacao.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                >
+                  <Card hover gradient>
+                    <div className="relative z-10">
+                      {/* Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            {avaliacao.nome}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {avaliacao.local}
                             </div>
-                          </div>
-                          <div className="flex flex-col items-start sm:items-end gap-2">
-                            {renderStars(avaliacao.nota)}
-                            <Badge variant="gradient">
-                              {avaliacao.nota === 5 && "Excelente"}
-                              {avaliacao.nota === 4 && "Muito Bom"}
-                              {avaliacao.nota === 3 && "Bom"}
-                              {avaliacao.nota === 2 && "Regular"}
-                              {avaliacao.nota === 1 && "Ruim"}
-                            </Badge>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              {formatarData(avaliacao.dataAvaliacao)}
+                            </div>
                           </div>
                         </div>
-
-                        {/* Comentário */}
-                        {avaliacao.comentario && (
-                          <div className="mb-4 p-4 bg-gray-50 rounded-xl">
-                            <p className="text-gray-700 italic">
-                              "{avaliacao.comentario}"
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Recomendação */}
-                        {avaliacao.recomendaria && (
-                          <div className="pt-4 border-t border-gray-200">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-600">
-                                {avaliacao.recomendaria === "Sim" 
-                                  ? "✅ Recomenda os serviços da FG Services" 
-                                  : avaliacao.recomendaria === "Não"
-                                  ? "❌ Não recomenda os serviços"
-                                  : "⚠️ Talvez recomende os serviços"
-                                }
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                        <div className="flex flex-col items-start sm:items-end gap-2">
+                          {renderStars(avaliacao.avaliacaoGeral)}
+                          <Badge variant="gradient">
+                            {avaliacao.avaliacaoGeral}
+                          </Badge>
+                        </div>
                       </div>
-                    </Card>
-                  </motion.div>
-                ))
-              )}
-            </div>
+
+                      {/* Elogio */}
+                      {avaliacao.elogio && (
+                        <div className="mb-4 p-4 bg-green-50 rounded-xl border border-green-200">
+                          <p className="text-gray-700 italic">
+                            "{avaliacao.elogio}"
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Melhoria */}
+                      {avaliacao.melhoriaDescricao && (
+                        <div className="mb-4 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                          <p className="text-sm text-gray-600 font-semibold mb-1">Sugestão de melhoria:</p>
+                          <p className="text-gray-700 italic">
+                            "{avaliacao.melhoriaDescricao}"
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Recomendação */}
+                      {avaliacao.recomendaria && (
+                        <div className="pt-4 border-t border-gray-200">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">
+                              {avaliacao.recomendaria === "Sim" 
+                                ? "✅ Recomenda os serviços da FG Services" 
+                                : avaliacao.recomendaria === "Não"
+                                ? "❌ Não recomenda os serviços"
+                                : "⚠️ Talvez recomende os serviços"
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </main>
@@ -384,4 +301,3 @@ export default function AvaliacoesPage() {
     </>
   );
 }
-
