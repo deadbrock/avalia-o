@@ -356,33 +356,21 @@ export default function AvaliacoesPage() {
                           </div>
                         )}
 
-                        {/* Aspectos */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">
-                              Qualidade
-                            </p>
-                            {renderStars(avaliacao.aspectos.qualidade, "sm")}
+                        {/* Recomendação */}
+                        {avaliacao.recomendaria && (
+                          <div className="pt-4 border-t border-gray-200">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-600">
+                                {avaliacao.recomendaria === "Sim" 
+                                  ? "✅ Recomenda os serviços da FG Services" 
+                                  : avaliacao.recomendaria === "Não"
+                                  ? "❌ Não recomenda os serviços"
+                                  : "⚠️ Talvez recomende os serviços"
+                                }
+                              </span>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">
-                              Pontualidade
-                            </p>
-                            {renderStars(avaliacao.aspectos.pontualidade, "sm")}
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">
-                              Profissionalismo
-                            </p>
-                            {renderStars(avaliacao.aspectos.profissionalismo, "sm")}
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">
-                              Atendimento
-                            </p>
-                            {renderStars(avaliacao.aspectos.atendimento, "sm")}
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </Card>
                   </motion.div>
