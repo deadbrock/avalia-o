@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Star,
   User,
   Mail,
   MapPin,
@@ -12,6 +11,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
+  Users,
+  ClipboardCheck,
+  Clock,
+  Award,
+  Settings,
+  ThumbsUp,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -23,14 +28,40 @@ interface FormData {
   email: string;
   local: string;
   data: string;
-  nota: number;
-  comentario: string;
-  aspectos: {
-    qualidade: number;
-    pontualidade: number;
-    profissionalismo: number;
-    atendimento: number;
-  };
+  
+  // Atendimento e comunicação
+  cordialidade: string;
+  comunicacao: string;
+  agilidade: string;
+  
+  // Qualidade do serviço
+  limpezaOrganizacao: string;
+  banheirosVestiarios: string;
+  pisos: string;
+  materiaisEquipamentos: string;
+  protocolosSeguranca: string;
+  
+  // Pontualidade e frequência
+  cumprimentoHorarios: string;
+  reforcoLimpeza: string;
+  substituicao: string;
+  
+  // Postura profissional
+  responsabilidade: string;
+  apresentacaoPessoal: string;
+  comportamento: string;
+  
+  // Gestão e supervisão
+  acompanhamentoSupervisor: string;
+  correcaoNaoConformidades: string;
+  gerenciamentoContrato: string;
+  
+  // Satisfação geral
+  avaliacaoGeral: string;
+  recomendaria: string;
+  melhoriaArea: string;
+  melhoriaDescricao: string;
+  elogio: string;
 }
 
 export default function AvaliarPage() {
@@ -39,17 +70,30 @@ export default function AvaliarPage() {
     email: "",
     local: "",
     data: "",
-    nota: 0,
-    comentario: "",
-    aspectos: {
-      qualidade: 0,
-      pontualidade: 0,
-      profissionalismo: 0,
-      atendimento: 0,
-    },
+    cordialidade: "",
+    comunicacao: "",
+    agilidade: "",
+    limpezaOrganizacao: "",
+    banheirosVestiarios: "",
+    pisos: "",
+    materiaisEquipamentos: "",
+    protocolosSeguranca: "",
+    cumprimentoHorarios: "",
+    reforcoLimpeza: "",
+    substituicao: "",
+    responsabilidade: "",
+    apresentacaoPessoal: "",
+    comportamento: "",
+    acompanhamentoSupervisor: "",
+    correcaoNaoConformidades: "",
+    gerenciamentoContrato: "",
+    avaliacaoGeral: "",
+    recomendaria: "",
+    melhoriaArea: "",
+    melhoriaDescricao: "",
+    elogio: "",
   });
 
-  const [hoverRating, setHoverRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -64,8 +108,8 @@ export default function AvaliarPage() {
       return;
     }
 
-    if (formData.nota === 0) {
-      setError("Por favor, selecione uma nota para o serviço.");
+    if (!formData.avaliacaoGeral) {
+      setError("Por favor, selecione uma avaliação geral.");
       return;
     }
 
@@ -73,7 +117,7 @@ export default function AvaliarPage() {
 
     // Simulação de envio
     setTimeout(() => {
-      // Salvar no localStorage (em produção, enviar para API)
+      // Salvar no localStorage
       const avaliacoes = JSON.parse(localStorage.getItem("avaliacoes") || "[]");
       avaliacoes.unshift({
         ...formData,
@@ -87,36 +131,44 @@ export default function AvaliarPage() {
     }, 1500);
   };
 
-  const renderStars = (
-    value: number,
-    onChange: (rating: number) => void,
-    size: "sm" | "lg" = "lg"
-  ) => {
-    const starSize = size === "lg" ? "w-12 h-12" : "w-6 h-6";
-
-    return (
-      <div className="flex gap-2">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => onChange(star)}
-            onMouseEnter={() => setHoverRating(star)}
-            onMouseLeave={() => setHoverRating(0)}
-            className="transition-transform hover:scale-110"
-          >
-            <Star
-              className={`${starSize} transition-colors ${
-                star <= (hoverRating || value)
-                  ? "text-yellow-500 fill-yellow-500"
-                  : "text-gray-300"
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-    );
+  const updateField = (field: keyof FormData, value: string) => {
+    setFormData({ ...formData, [field]: value });
   };
+
+  const RadioGroup = ({
+    name,
+    options,
+    value,
+    onChange,
+  }: {
+    name: string;
+    options: string[];
+    value: string;
+    onChange: (value: string) => void;
+  }) => (
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => (
+        <label
+          key={option}
+          className={`flex-1 min-w-[100px] cursor-pointer transition-all ${
+            value === option
+              ? "bg-gradient-to-r from-primary to-red-700 text-white shadow-lg"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          } px-4 py-3 rounded-xl text-center font-medium text-sm`}
+        >
+          <input
+            type="radio"
+            name={name}
+            value={option}
+            checked={value === option}
+            onChange={(e) => onChange(e.target.value)}
+            className="sr-only"
+          />
+          {option}
+        </label>
+      ))}
+    </div>
+  );
 
   if (submitted) {
     return (
@@ -149,14 +201,28 @@ export default function AvaliarPage() {
                         email: "",
                         local: "",
                         data: "",
-                        nota: 0,
-                        comentario: "",
-                        aspectos: {
-                          qualidade: 0,
-                          pontualidade: 0,
-                          profissionalismo: 0,
-                          atendimento: 0,
-                        },
+                        cordialidade: "",
+                        comunicacao: "",
+                        agilidade: "",
+                        limpezaOrganizacao: "",
+                        banheirosVestiarios: "",
+                        pisos: "",
+                        materiaisEquipamentos: "",
+                        protocolosSeguranca: "",
+                        cumprimentoHorarios: "",
+                        reforcoLimpeza: "",
+                        substituicao: "",
+                        responsabilidade: "",
+                        apresentacaoPessoal: "",
+                        comportamento: "",
+                        acompanhamentoSupervisor: "",
+                        correcaoNaoConformidades: "",
+                        gerenciamentoContrato: "",
+                        avaliacaoGeral: "",
+                        recomendaria: "",
+                        melhoriaArea: "",
+                        melhoriaDescricao: "",
+                        elogio: "",
                       });
                     }}
                   >
@@ -182,7 +248,7 @@ export default function AvaliarPage() {
     <>
       <Header />
       <main className="min-h-screen pt-32 pb-20 bg-gradient-to-b from-white via-gray-50 to-white">
-        <div className="mx-auto max-w-4xl px-4">
+        <div className="mx-auto max-w-5xl px-4">
           {/* Header da Página */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -198,11 +264,11 @@ export default function AvaliarPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-r from-gray-900 via-primary to-secondary bg-clip-text text-transparent">
-                Como Foi Nosso Serviço?
+                Avalie Nosso Serviço
               </span>
             </h1>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Sua avaliação é muito importante! Compartilhe sua experiência conosco.
+              Sua avaliação nos ajuda a melhorar continuamente. Preencha o formulário abaixo.
             </p>
           </motion.div>
 
@@ -238,9 +304,7 @@ export default function AvaliarPage() {
                         type="text"
                         placeholder="Seu nome completo *"
                         value={formData.nome}
-                        onChange={(e) =>
-                          setFormData({ ...formData, nome: e.target.value })
-                        }
+                        onChange={(e) => updateField("nome", e.target.value)}
                         className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 pl-11 pr-4 py-3 outline-none focus:border-primary focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
                         required
                       />
@@ -251,32 +315,18 @@ export default function AvaliarPage() {
                         type="email"
                         placeholder="Seu e-mail *"
                         value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
+                        onChange={(e) => updateField("email", e.target.value)}
                         className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 pl-11 pr-4 py-3 outline-none focus:border-primary focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
                         required
                       />
                     </div>
-                  </div>
-                </div>
-
-                {/* Informações do Serviço */}
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                    <MapPin className="w-6 h-6 text-primary" />
-                    Sobre o Serviço
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
                         placeholder="Local do serviço *"
                         value={formData.local}
-                        onChange={(e) =>
-                          setFormData({ ...formData, local: e.target.value })
-                        }
+                        onChange={(e) => updateField("local", e.target.value)}
                         className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 pl-11 pr-4 py-3 outline-none focus:border-primary focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
                         required
                       />
@@ -286,9 +336,7 @@ export default function AvaliarPage() {
                       <input
                         type="date"
                         value={formData.data}
-                        onChange={(e) =>
-                          setFormData({ ...formData, data: e.target.value })
-                        }
+                        onChange={(e) => updateField("data", e.target.value)}
                         className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 pl-11 pr-4 py-3 outline-none focus:border-primary focus:bg-white transition-all text-gray-900"
                         required
                       />
@@ -296,149 +344,329 @@ export default function AvaliarPage() {
                   </div>
                 </div>
 
-                {/* Avaliação Geral */}
+                {/* 1. Atendimento e Comunicação */}
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <Star className="w-6 h-6 text-primary" />
-                    Avaliação Geral
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <Users className="w-6 h-6 text-primary" />
+                    1. Atendimento e Comunicação
                   </h2>
-                  <p className="text-gray-600 mb-6">
-                    Como você avalia o serviço de forma geral?
-                  </p>
-                  <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200">
-                    {renderStars(formData.nota, (rating) =>
-                      setFormData({ ...formData, nota: rating })
-                    )}
-                    {formData.nota > 0 && (
-                      <p className="text-lg font-semibold text-primary">
-                        {formData.nota === 5 && "Excelente! ⭐"}
-                        {formData.nota === 4 && "Muito Bom! 👍"}
-                        {formData.nota === 3 && "Bom 👌"}
-                        {formData.nota === 2 && "Regular 😐"}
-                        {formData.nota === 1 && "Precisa Melhorar 😞"}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Aspectos Específicos */}
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    Aspectos Específicos
-                  </h2>
+                  
                   <div className="space-y-6">
-                    {/* Qualidade */}
-                    <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-gray-900">
-                          Qualidade da Limpeza
-                        </span>
-                        {formData.aspectos.qualidade > 0 && (
-                          <span className="text-sm text-primary font-medium">
-                            {formData.aspectos.qualidade}/5
-                          </span>
-                        )}
-                      </div>
-                      {renderStars(
-                        formData.aspectos.qualidade,
-                        (rating) =>
-                          setFormData({
-                            ...formData,
-                            aspectos: { ...formData.aspectos, qualidade: rating },
-                          }),
-                        "sm"
-                      )}
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        A equipe de limpeza é cordial e educada no contato diário?
+                      </p>
+                      <RadioGroup
+                        name="cordialidade"
+                        options={["Sempre", "Frequentemente", "Às vezes", "Raramente", "Nunca"]}
+                        value={formData.cordialidade}
+                        onChange={(value) => updateField("cordialidade", value)}
+                      />
                     </div>
 
-                    {/* Pontualidade */}
-                    <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-gray-900">
-                          Pontualidade
-                        </span>
-                        {formData.aspectos.pontualidade > 0 && (
-                          <span className="text-sm text-primary font-medium">
-                            {formData.aspectos.pontualidade}/5
-                          </span>
-                        )}
-                      </div>
-                      {renderStars(
-                        formData.aspectos.pontualidade,
-                        (rating) =>
-                          setFormData({
-                            ...formData,
-                            aspectos: { ...formData.aspectos, pontualidade: rating },
-                          }),
-                        "sm"
-                      )}
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        A comunicação com o supervisor ou encarregado é clara e eficiente?
+                      </p>
+                      <RadioGroup
+                        name="comunicacao"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.comunicacao}
+                        onChange={(value) => updateField("comunicacao", value)}
+                      />
                     </div>
 
-                    {/* Profissionalismo */}
-                    <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-gray-900">
-                          Profissionalismo
-                        </span>
-                        {formData.aspectos.profissionalismo > 0 && (
-                          <span className="text-sm text-primary font-medium">
-                            {formData.aspectos.profissionalismo}/5
-                          </span>
-                        )}
-                      </div>
-                      {renderStars(
-                        formData.aspectos.profissionalismo,
-                        (rating) =>
-                          setFormData({
-                            ...formData,
-                            aspectos: { ...formData.aspectos, profissionalismo: rating },
-                          }),
-                        "sm"
-                      )}
-                    </div>
-
-                    {/* Atendimento */}
-                    <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-gray-900">
-                          Atendimento
-                        </span>
-                        {formData.aspectos.atendimento > 0 && (
-                          <span className="text-sm text-primary font-medium">
-                            {formData.aspectos.atendimento}/5
-                          </span>
-                        )}
-                      </div>
-                      {renderStars(
-                        formData.aspectos.atendimento,
-                        (rating) =>
-                          setFormData({
-                            ...formData,
-                            aspectos: { ...formData.aspectos, atendimento: rating },
-                          }),
-                        "sm"
-                      )}
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Quando há solicitações ou imprevistos, a equipe responde com agilidade e disposição para resolver?
+                      </p>
+                      <RadioGroup
+                        name="agilidade"
+                        options={["Sempre", "Frequentemente", "Às vezes", "Raramente", "Nunca"]}
+                        value={formData.agilidade}
+                        onChange={(value) => updateField("agilidade", value)}
+                      />
                     </div>
                   </div>
                 </div>
 
-                {/* Comentário */}
+                {/* 2. Qualidade do Serviço */}
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <MessageSquare className="w-6 h-6 text-primary" />
-                    Comentário (opcional)
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <ClipboardCheck className="w-6 h-6 text-primary" />
+                    2. Qualidade do Serviço Executado
                   </h2>
-                  <p className="text-gray-600 mb-4">
-                    Compartilhe mais detalhes sobre sua experiência
-                  </p>
-                  <textarea
-                    placeholder="Conte-nos mais sobre sua experiência com nosso serviço..."
-                    value={formData.comentario}
-                    onChange={(e) =>
-                      setFormData({ ...formData, comentario: e.target.value })
-                    }
-                    rows={5}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-primary focus:bg-white transition-all text-gray-900 placeholder:text-gray-400 resize-none"
-                  />
+                  
+                  <div className="space-y-6">
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Os ambientes são mantidos limpos e organizados conforme o padrão esperado?
+                      </p>
+                      <RadioGroup
+                        name="limpezaOrganizacao"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.limpezaOrganizacao}
+                        onChange={(value) => updateField("limpezaOrganizacao", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Os banheiros e vestiários estão sempre higienizados, abastecidos e sem odores?
+                      </p>
+                      <RadioGroup
+                        name="banheirosVestiarios"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.banheirosVestiarios}
+                        onChange={(value) => updateField("banheirosVestiarios", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        A limpeza de pisos e áreas comuns é bem executada?
+                      </p>
+                      <RadioGroup
+                        name="pisos"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.pisos}
+                        onChange={(value) => updateField("pisos", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Os materiais e equipamentos utilizados parecem adequados e em bom estado?
+                      </p>
+                      <RadioGroup
+                        name="materiaisEquipamentos"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.materiaisEquipamentos}
+                        onChange={(value) => updateField("materiaisEquipamentos", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        A equipe segue os protocolos de limpeza e segurança (ex: uso de EPI, sinalização de piso molhado)?
+                      </p>
+                      <RadioGroup
+                        name="protocolosSeguranca"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.protocolosSeguranca}
+                        onChange={(value) => updateField("protocolosSeguranca", value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Pontualidade e Frequência */}
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <Clock className="w-6 h-6 text-primary" />
+                    3. Pontualidade e Frequência
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        A equipe cumpre os horários estabelecidos e mantém constância na presença?
+                      </p>
+                      <RadioGroup
+                        name="cumprimentoHorarios"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.cumprimentoHorarios}
+                        onChange={(value) => updateField("cumprimentoHorarios", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Os reforços de limpeza ocorrem nos momentos de maior movimento, quando necessário?
+                      </p>
+                      <RadioGroup
+                        name="reforcoLimpeza"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.reforcoLimpeza}
+                        onChange={(value) => updateField("reforcoLimpeza", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Há substituição adequada em casos de ausência de funcionários?
+                      </p>
+                      <RadioGroup
+                        name="substituicao"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.substituicao}
+                        onChange={(value) => updateField("substituicao", value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Postura Profissional */}
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <Award className="w-6 h-6 text-primary" />
+                    4. Postura Profissional
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Os colaboradores demonstram responsabilidade e comprometimento?
+                      </p>
+                      <RadioGroup
+                        name="responsabilidade"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.responsabilidade}
+                        onChange={(value) => updateField("responsabilidade", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        A apresentação pessoal (uniforme, crachá, higiene) é adequada?
+                      </p>
+                      <RadioGroup
+                        name="apresentacaoPessoal"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.apresentacaoPessoal}
+                        onChange={(value) => updateField("apresentacaoPessoal", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        O comportamento da equipe contribui para um ambiente agradável e respeitoso?
+                      </p>
+                      <RadioGroup
+                        name="comportamento"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.comportamento}
+                        onChange={(value) => updateField("comportamento", value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Gestão e Supervisão */}
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <Settings className="w-6 h-6 text-primary" />
+                    5. Gestão e Supervisão
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        O supervisor acompanha e fiscaliza a execução dos serviços com frequência?
+                      </p>
+                      <RadioGroup
+                        name="acompanhamentoSupervisor"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.acompanhamentoSupervisor}
+                        onChange={(value) => updateField("acompanhamentoSupervisor", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Quando há não conformidades, o retorno e correção ocorrem rapidamente?
+                      </p>
+                      <RadioGroup
+                        name="correcaoNaoConformidades"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.correcaoNaoConformidades}
+                        onChange={(value) => updateField("correcaoNaoConformidades", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Você considera o gerenciamento do contrato de limpeza satisfatório?
+                      </p>
+                      <RadioGroup
+                        name="gerenciamentoContrato"
+                        options={["Excelente", "Boa", "Regular", "Ruim", "Péssima"]}
+                        value={formData.gerenciamentoContrato}
+                        onChange={(value) => updateField("gerenciamentoContrato", value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Satisfação Geral e Sugestões */}
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <ThumbsUp className="w-6 h-6 text-primary" />
+                    6. Satisfação Geral e Sugestões
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        De forma geral, como você avalia o serviço de limpeza prestado pela FG Services? *
+                      </p>
+                      <RadioGroup
+                        name="avaliacaoGeral"
+                        options={["Excelente", "Bom", "Regular", "Ruim", "Péssimo"]}
+                        value={formData.avaliacaoGeral}
+                        onChange={(value) => updateField("avaliacaoGeral", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Você recomendaria os serviços da FG Services para outra empresa?
+                      </p>
+                      <RadioGroup
+                        name="recomendaria"
+                        options={["Sim", "Talvez", "Não"]}
+                        value={formData.recomendaria}
+                        onChange={(value) => updateField("recomendaria", value)}
+                      />
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Existe alguma área ou aspecto que poderia ser melhorado?
+                      </p>
+                      <RadioGroup
+                        name="melhoriaArea"
+                        options={["Sim", "Não"]}
+                        value={formData.melhoriaArea}
+                        onChange={(value) => updateField("melhoriaArea", value)}
+                      />
+                      
+                      {formData.melhoriaArea === "Sim" && (
+                        <div className="mt-4">
+                          <textarea
+                            placeholder="Descreva as melhorias sugeridas..."
+                            value={formData.melhoriaDescricao}
+                            onChange={(e) => updateField("melhoriaDescricao", e.target.value)}
+                            rows={4}
+                            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 outline-none focus:border-primary transition-all text-gray-900 placeholder:text-gray-400 resize-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-5 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        Há algum elogio ou observação positiva que gostaria de registrar?
+                      </p>
+                      <textarea
+                        placeholder="Compartilhe seus elogios ou observações positivas..."
+                        value={formData.elogio}
+                        onChange={(e) => updateField("elogio", e.target.value)}
+                        rows={4}
+                        className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 outline-none focus:border-primary transition-all text-gray-900 placeholder:text-gray-400 resize-none"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Botões */}
@@ -470,4 +698,3 @@ export default function AvaliarPage() {
     </>
   );
 }
-

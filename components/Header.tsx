@@ -59,6 +59,12 @@ export default function Header() {
           >
             Ver Avaliações
           </Link>
+          <Link
+            href="/qrcode"
+            className="text-gray-700 hover:text-primary font-medium transition-colors duration-300"
+          >
+            QR Code
+          </Link>
         </nav>
 
         {/* CTA Button Desktop */}
@@ -84,7 +90,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+        {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
           <nav className="flex flex-col p-4 space-y-4">
@@ -108,6 +114,13 @@ export default function Header() {
               className="text-gray-700 hover:text-primary font-medium transition-colors duration-300 py-2"
             >
               Ver Avaliações
+            </Link>
+            <Link
+              href="/qrcode"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-gray-700 hover:text-primary font-medium transition-colors duration-300 py-2"
+            >
+              QR Code
             </Link>
             <Link
               href="/avaliar"

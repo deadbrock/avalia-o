@@ -49,6 +49,11 @@ export default function Footer() {
                   Ver Avaliações
                 </Link>
               </li>
+              <li>
+                <Link href="/qrcode" className="text-gray-600 hover:text-primary transition-colors">
+                  QR Code
+                </Link>
+              </li>
             </ul>
           </div>
 

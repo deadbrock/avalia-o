@@ -1,0 +1,97 @@
+═══════════════════════════════════════════════════════════════
+           📱 COMO USAR O QR CODE - FG SERVICES
+═══════════════════════════════════════════════════════════════
+
+🔗 LINK: https://avaliacao-plum-seven.vercel.app
+
+═══════════════════════════════════════════════════════════════
+
+📱 IPHONE (iOS):
+───────────────────────────────────────────────────────────────
+
+1. Abra o app CÂMERA (app nativo do iPhone)
+2. Aponte para o QR Code
+3. Aguarde 2 segundos
+4. Vai aparecer uma NOTIFICAÇÃO AMARELA no topo da tela
+5. TOQUE na notificação
+6. O Safari vai abrir automaticamente
+
+⚠️ SE NÃO APARECER A NOTIFICAÇÃO:
+   - Vá em Ajustes > Câmera
+   - Ative "Escanear Códigos QR"
+
+═══════════════════════════════════════════════════════════════
+
+📱 ANDROID:
+───────────────────────────────────────────────────────────────
+
+OPÇÃO 1 - Câmera Nativa:
+1. Abra o app CÂMERA
+2. Aponte para o QR Code
+3. TOQUE no banner/popup que aparecer na tela
+4. O Chrome vai abrir automaticamente
+
+OPÇÃO 2 - Google Lens (RECOMENDADO):
+1. Abra o Google Fotos ou Google
+2. Toque no ícone da CÂMERA/LENS
+3. Aponte para o QR Code
+4. Toque no link
+5. Abre automaticamente
+
+OPÇÃO 3 - App de QR Code:
+1. Baixe "QR Code Reader" na Play Store
+2. Abra o app
+3. Aponte para o QR Code
+4. Abre automaticamente
+
+═══════════════════════════════════════════════════════════════
+
+🖨️ ARQUIVOS DISPONÍVEIS:
+───────────────────────────────────────────────────────────────
+
+✅ qrcode-final.png           → USE ESTE (melhor compatibilidade)
+✅ qrcode-v1.png               → Alternativa 1
+✅ qrcode-fg-services.png      → Versão pequena (500x500)
+✅ qrcode-fg-services-print.png → Alta resolução (1000x1000)
+✅ qrcode-fg-services-mobile.png → Otimizado mobile
+
+═══════════════════════════════════════════════════════════════
+
+💡 DICAS:
+───────────────────────────────────────────────────────────────
+
+1. SEMPRE use a câmera NATIVA do celular (não apps de terceiros)
+2. O QR Code deve estar BEM ILUMINADO
+3. Mantenha o celular a 15-20cm de distância
+4. Aguarde 2-3 segundos para o celular reconhecer
+5. TOQUE na notificação que aparecer (não espere abrir sozinho)
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE:
+───────────────────────────────────────────────────────────────
+
+O celular VAI MOSTRAR O LINK primeiro, mas você precisa TOCAR 
+nele para abrir no navegador. Não abre automaticamente sem tocar!
+
+═══════════════════════════════════════════════════════════════
+
+✅ TESTADO E FUNCIONANDO:
+───────────────────────────────────────────────────────────────
+
+✓ iPhone (iOS 14+)
+✓ Android (Samsung, Xiaomi, Motorola)
+✓ Google Lens
+✓ Apps de QR Code
+
+═══════════════════════════════════════════════════════════════
+
+📧 PROBLEMAS?
+
+Se mesmo seguindo as instruções não funcionar:
+1. Certifique-se que tem internet no celular
+2. Tente com outro celular
+3. Use o Google Lens (sempre funciona)
+
+═══════════════════════════════════════════════════════════════
+
