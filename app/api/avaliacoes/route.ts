@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Nota: Em produção na Vercel, não é possível salvar arquivos.
-// Os dados são persistidos apenas no localStorage do cliente.
-// Para persistência real, integre com banco de dados (Vercel Postgres, MongoDB, etc)
+import { kv } from '@vercel/kv';
 
 // GET - Listar todas as avaliações
 export async function GET(request: NextRequest) {
   try {
-    // Em produção, retorna array vazio
-    // Os dados vêm do localStorage do cliente
+    // Buscar avaliações do Vercel KV
+    const avaliacoes = await kv.get<any[]>('avaliacoes') || [];
+    
     return NextResponse.json({
       success: true,
-      data: [],
-      total: 0,
-      message: 'Dados carregados do localStorage do cliente',
+      data: avaliacoes,
+      total: avaliacoes.length,
     });
   } catch (error) {
+    console.error('Erro ao buscar avaliações:', error);
     return NextResponse.json(
       { success: false, error: 'Erro ao buscar avaliações' },
       { status: 500 }
@@ -36,6 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Buscar avaliações existentes
+    const avaliacoes = await kv.get<any[]>('avaliacoes') || [];
+    
     // Criar nova avaliação
     const novaAvaliacao = {
       id: Date.now(),
@@ -43,8 +44,12 @@ export async function POST(request: NextRequest) {
       dataAvaliacao: new Date().toISOString(),
     };
     
-    // Retornar sucesso
-    // Os dados são salvos no localStorage pelo cliente
+    // Adicionar ao início do array
+    avaliacoes.unshift(novaAvaliacao);
+    
+    // Salvar no Vercel KV
+    await kv.set('avaliacoes', avaliacoes);
+    
     return NextResponse.json({
       success: true,
       data: novaAvaliacao,

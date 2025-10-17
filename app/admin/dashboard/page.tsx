@@ -39,14 +39,18 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Carregar avaliações do localStorage
+    // Carregar avaliações da API (Vercel KV)
     const loadAvaliacoes = async () => {
       try {
-        // Carregar diretamente do localStorage
-        const stored = localStorage.getItem("avaliacoes");
-        if (stored) {
-          const data = JSON.parse(stored);
+        // Buscar da API
+        const response = await fetch('/api/avaliacoes');
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+          const data = result.data;
           setAvaliacoes(data);
+          // Salvar no localStorage como cache
+          localStorage.setItem("avaliacoes", JSON.stringify(data));
       
       // Calcular estatísticas
       const now = new Date();
@@ -93,9 +97,22 @@ export default function DashboardPage() {
             excelentes,
             problematicas,
           });
+        } else {
+          // Fallback: carregar do localStorage
+          const stored = localStorage.getItem("avaliacoes");
+          if (stored) {
+            const data = JSON.parse(stored);
+            setAvaliacoes(data);
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar avaliações:', error);
+        // Fallback: carregar do localStorage
+        const stored = localStorage.getItem("avaliacoes");
+        if (stored) {
+          const data = JSON.parse(stored);
+          setAvaliacoes(data);
+        }
       }
     };
     

@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Nota: Em produção na Vercel, não é possível salvar arquivos.
-// Os dados são persistidos apenas no localStorage do cliente.
-// Para persistência real, integre com banco de dados (Vercel Postgres, MongoDB, etc)
+import { kv } from '@vercel/kv';
 
 // GET - Buscar avaliação por ID
 export async function GET(
@@ -12,17 +9,23 @@ export async function GET(
   try {
     const params = await context.params;
     
-    // Em produção, retorna não encontrado
-    // Os dados vêm do localStorage do cliente
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Avaliação não encontrada',
-        message: 'Dados disponíveis apenas no localStorage do cliente'
-      },
-      { status: 404 }
-    );
+    // Buscar avaliações do Vercel KV
+    const avaliacoes = await kv.get<any[]>('avaliacoes') || [];
+    const avaliacao = avaliacoes.find((av: any) => av.id === parseInt(params.id));
+    
+    if (!avaliacao) {
+      return NextResponse.json(
+        { success: false, error: 'Avaliação não encontrada' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({
+      success: true,
+      data: avaliacao,
+    });
   } catch (error) {
+    console.error('Erro ao buscar avaliação:', error);
     return NextResponse.json(
       { success: false, error: 'Erro ao buscar avaliação' },
       { status: 500 }
