@@ -43,9 +43,9 @@ export default function AnalisesPage() {
   };
 
   const total = Object.values(dados.distribuicaoNotas).reduce(
-    (a: any, b: any) => a + b,
+    (a, b) => (a as number) + (b as number),
     0
-  );
+  ) as number;
 
   return (
     <ProtectedRoute>
