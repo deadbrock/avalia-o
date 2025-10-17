@@ -39,17 +39,14 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Carregar avaliações da API
+    // Carregar avaliações do localStorage
     const loadAvaliacoes = async () => {
       try {
-        const response = await fetch('/api/avaliacoes');
-        const result = await response.json();
-        
-        if (result.success) {
-          const data = result.data;
+        // Carregar diretamente do localStorage
+        const stored = localStorage.getItem("avaliacoes");
+        if (stored) {
+          const data = JSON.parse(stored);
           setAvaliacoes(data);
-          // Também salvar no localStorage para fallback
-          localStorage.setItem("avaliacoes", JSON.stringify(data));
       
       // Calcular estatísticas
       const now = new Date();
@@ -96,22 +93,9 @@ export default function DashboardPage() {
             excelentes,
             problematicas,
           });
-        } else {
-          // Fallback para localStorage
-          const stored = localStorage.getItem("avaliacoes");
-          if (stored) {
-            const data = JSON.parse(stored);
-            setAvaliacoes(data);
-          }
         }
       } catch (error) {
         console.error('Erro ao carregar avaliações:', error);
-        // Fallback para localStorage
-        const stored = localStorage.getItem("avaliacoes");
-        if (stored) {
-          const data = JSON.parse(stored);
-          setAvaliacoes(data);
-        }
       }
     };
     

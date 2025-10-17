@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const AVALIACOES_FILE = path.join(DATA_DIR, 'avaliacoes.json');
-
-async function readAvaliacoes() {
-  try {
-    if (existsSync(AVALIACOES_FILE)) {
-      const data = await readFile(AVALIACOES_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-    return [];
-  } catch (error) {
-    return [];
-  }
-}
+// Nota: Em produção na Vercel, não é possível salvar arquivos.
+// Os dados são persistidos apenas no localStorage do cliente.
+// Para persistência real, integre com banco de dados (Vercel Postgres, MongoDB, etc)
 
 // GET - Buscar avaliação por ID
 export async function GET(
@@ -25,20 +11,17 @@ export async function GET(
 ) {
   try {
     const params = await context.params;
-    const avaliacoes = await readAvaliacoes();
-    const avaliacao = avaliacoes.find((av: any) => av.id === parseInt(params.id));
     
-    if (!avaliacao) {
-      return NextResponse.json(
-        { success: false, error: 'Avaliação não encontrada' },
-        { status: 404 }
-      );
-    }
-    
-    return NextResponse.json({
-      success: true,
-      data: avaliacao,
-    });
+    // Em produção, retorna não encontrado
+    // Os dados vêm do localStorage do cliente
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Avaliação não encontrada',
+        message: 'Dados disponíveis apenas no localStorage do cliente'
+      },
+      { status: 404 }
+    );
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Erro ao buscar avaliação' },

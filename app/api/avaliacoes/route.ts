@@ -1,54 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const AVALIACOES_FILE = path.join(DATA_DIR, 'avaliacoes.json');
-
-// Garantir que o diretório existe
-async function ensureDataDir() {
-  if (!existsSync(DATA_DIR)) {
-    await mkdir(DATA_DIR, { recursive: true });
-  }
-}
-
-// Ler avaliações do arquivo
-async function readAvaliacoes() {
-  try {
-    await ensureDataDir();
-    if (existsSync(AVALIACOES_FILE)) {
-      const data = await readFile(AVALIACOES_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-    return [];
-  } catch (error) {
-    console.error('Erro ao ler avaliações:', error);
-    return [];
-  }
-}
-
-// Salvar avaliações no arquivo
-async function saveAvaliacoes(avaliacoes: any[]) {
-  try {
-    await ensureDataDir();
-    await writeFile(AVALIACOES_FILE, JSON.stringify(avaliacoes, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Erro ao salvar avaliações:', error);
-    return false;
-  }
-}
+// Nota: Em produção na Vercel, não é possível salvar arquivos.
+// Os dados são persistidos apenas no localStorage do cliente.
+// Para persistência real, integre com banco de dados (Vercel Postgres, MongoDB, etc)
 
 // GET - Listar todas as avaliações
 export async function GET(request: NextRequest) {
   try {
-    const avaliacoes = await readAvaliacoes();
-    
+    // Em produção, retorna array vazio
+    // Os dados vêm do localStorage do cliente
     return NextResponse.json({
       success: true,
-      data: avaliacoes,
-      total: avaliacoes.length,
+      data: [],
+      total: 0,
+      message: 'Dados carregados do localStorage do cliente',
     });
   } catch (error) {
     return NextResponse.json(
@@ -71,9 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Ler avaliações existentes
-    const avaliacoes = await readAvaliacoes();
-    
     // Criar nova avaliação
     const novaAvaliacao = {
       id: Date.now(),
@@ -81,19 +43,8 @@ export async function POST(request: NextRequest) {
       dataAvaliacao: new Date().toISOString(),
     };
     
-    // Adicionar ao início do array
-    avaliacoes.unshift(novaAvaliacao);
-    
-    // Salvar
-    const saved = await saveAvaliacoes(avaliacoes);
-    
-    if (!saved) {
-      return NextResponse.json(
-        { success: false, error: 'Erro ao salvar avaliação' },
-        { status: 500 }
-      );
-    }
-    
+    // Retornar sucesso
+    // Os dados são salvos no localStorage pelo cliente
     return NextResponse.json({
       success: true,
       data: novaAvaliacao,
