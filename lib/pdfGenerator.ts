@@ -120,7 +120,7 @@ export const gerarPDFPlanoAcao = (planos: PlanoAcao[]) => {
     doc.setFont('helvetica', 'normal');
     
     // Badges coloridos para status e prioridade
-    const prioridadeColor = plano.prioridade === 'alta' ? [220, 38, 38] : plano.prioridade === 'media' ? [234, 179, 8] : [34, 197, 94];
+    const prioridadeColor: [number, number, number] = plano.prioridade === 'alta' ? [220, 38, 38] : plano.prioridade === 'media' ? [234, 179, 8] : [34, 197, 94];
     doc.setFillColor(...prioridadeColor);
     doc.roundedRect(16, yPosition + 10, 20, 5, 1, 1, 'F');
     doc.setTextColor(255, 255, 255);
