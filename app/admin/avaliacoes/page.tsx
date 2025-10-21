@@ -11,6 +11,8 @@ import {
   MapPin,
   User,
   X,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminSidebar from "@/components/admin/AdminSidebar";
@@ -38,14 +40,23 @@ export default function AvaliacoesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterNota, setFilterNota] = useState("");
   const [selectedAvaliacao, setSelectedAvaliacao] = useState<Avaliacao | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [showDeleteAll, setShowDeleteAll] = useState(false);
 
-  useEffect(() => {
+  const carregarAvaliacoes = () => {
     const stored = localStorage.getItem("avaliacoes");
     if (stored) {
       const data = JSON.parse(stored);
       setAvaliacoes(data);
       setFilteredAvaliacoes(data);
+    } else {
+      setAvaliacoes([]);
+      setFilteredAvaliacoes([]);
     }
+  };
+
+  useEffect(() => {
+    carregarAvaliacoes();
   }, []);
 
   useEffect(() => {
@@ -68,6 +79,69 @@ export default function AvaliacoesPage() {
 
     setFilteredAvaliacoes(filtered);
   }, [searchTerm, filterNota, avaliacoes]);
+
+  // Deletar avaliação individual
+  const deletarAvaliacao = async (id: number) => {
+    try {
+      // Deletar do localStorage
+      const novasAvaliacoes = avaliacoes.filter(av => av.id !== id);
+      localStorage.setItem("avaliacoes", JSON.stringify(novasAvaliacoes));
+      
+      // Tentar deletar da API (Redis)
+      try {
+        const response = await fetch('/api/avaliacoes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avaliacoes: novasAvaliacoes }),
+        });
+        
+        if (!response.ok) {
+          console.warn('Erro ao sincronizar com API, mas deletado localmente');
+        }
+      } catch (apiError) {
+        console.warn('Erro ao sincronizar com API:', apiError);
+      }
+      
+      // Atualizar estado
+      setAvaliacoes(novasAvaliacoes);
+      setConfirmDelete(null);
+      alert('Avaliação deletada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao deletar avaliação:', error);
+      alert('Erro ao deletar avaliação');
+    }
+  };
+
+  // Limpar todas as avaliações
+  const limparTodasAvaliacoes = async () => {
+    try {
+      // Limpar localStorage
+      localStorage.setItem("avaliacoes", JSON.stringify([]));
+      
+      // Tentar limpar da API (Redis)
+      try {
+        const response = await fetch('/api/avaliacoes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avaliacoes: [] }),
+        });
+        
+        if (!response.ok) {
+          console.warn('Erro ao sincronizar com API, mas limpado localmente');
+        }
+      } catch (apiError) {
+        console.warn('Erro ao sincronizar com API:', apiError);
+      }
+      
+      // Atualizar estado
+      setAvaliacoes([]);
+      setShowDeleteAll(false);
+      alert('Todas as avaliações foram deletadas!');
+    } catch (error) {
+      console.error('Erro ao limpar avaliações:', error);
+      alert('Erro ao limpar avaliações');
+    }
+  };
 
   const exportarCSV = () => {
     try {
@@ -209,6 +283,17 @@ export default function AvaliacoesPage() {
                   <Download className="w-5 h-5" />
                   Exportar
                 </Button>
+
+                {avaliacoes.length > 0 && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowDeleteAll(true)}
+                    className="border-red-500 text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                    Limpar Tudo
+                  </Button>
+                )}
               </div>
             </div>
           </Card>
@@ -302,12 +387,22 @@ export default function AvaliacoesPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <button
-                            onClick={() => setSelectedAvaliacao(av)}
-                            className="text-primary hover:text-red-700 transition-colors"
-                          >
-                            <Eye className="w-5 h-5" />
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedAvaliacao(av)}
+                              className="text-primary hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-gray-100"
+                              title="Ver detalhes"
+                            >
+                              <Eye className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => setConfirmDelete(av.id)}
+                              className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-red-50"
+                              title="Deletar avaliação"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
                         </td>
                       </motion.tr>
                     ))
@@ -401,6 +496,96 @@ export default function AvaliacoesPage() {
                     </p>
                   </div>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Modal de Confirmação de Exclusão Individual */}
+        {confirmDelete && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl max-w-md w-full p-6"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Confirmar Exclusão</h3>
+                  <p className="text-sm text-gray-600">Esta ação não pode ser desfeita</p>
+                </div>
+              </div>
+
+              <p className="text-gray-700 mb-6">
+                Tem certeza que deseja deletar esta avaliação?
+              </p>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmDelete(null)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => deletarAvaliacao(confirmDelete)}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Deletar
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Modal de Confirmação de Limpeza Total */}
+        {showDeleteAll && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl max-w-md w-full p-6"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">⚠️ Atenção!</h3>
+                  <p className="text-sm text-gray-600">Ação irreversível</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-900 font-semibold mb-2">
+                  Você está prestes a deletar TODAS as {avaliacoes.length} avaliações!
+                </p>
+                <p className="text-sm text-gray-600">
+                  Esta ação irá remover permanentemente todos os dados de avaliações. 
+                  Esta operação não pode ser desfeita.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteAll(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={limparTodasAvaliacoes}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Limpar Tudo
+                </Button>
               </div>
             </motion.div>
           </div>
