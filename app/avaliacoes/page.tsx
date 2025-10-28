@@ -33,52 +33,31 @@ interface Avaliacao {
 
 export default function AvaliacoesPage() {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Carregar avaliações do localStorage
-    const stored = localStorage.getItem("avaliacoes");
-    if (stored) {
-      setAvaliacoes(JSON.parse(stored));
-    } else {
-      // Dados de exemplo
-      const exemplos: Avaliacao[] = [
-        {
-          id: 1,
-          nome: "Maria Silva",
-          email: "maria@email.com",
-          local: "Apartamento - São Paulo",
-          data: "2025-10-10",
-          avaliacaoGeral: "Excelente",
-          recomendaria: "Sim",
-          elogio: "Serviço excepcional! A equipe foi muito atenciosa e deixou tudo impecável. Super recomendo!",
-          dataAvaliacao: "2025-10-11T10:30:00",
-        },
-        {
-          id: 2,
-          nome: "João Santos",
-          email: "joao@email.com",
-          local: "Casa - Campinas",
-          data: "2025-10-08",
-          avaliacaoGeral: "Boa",
-          recomendaria: "Sim",
-          melhoriaDescricao: "Apenas um pequeno atraso no início, mas o trabalho foi excelente.",
-          dataAvaliacao: "2025-10-09T14:20:00",
-        },
-        {
-          id: 3,
-          nome: "Ana Paula",
-          email: "ana@email.com",
-          local: "Escritório - São Paulo",
-          data: "2025-10-05",
-          avaliacaoGeral: "Excelente",
-          recomendaria: "Sim",
-          elogio: "Trabalho impecável! A atenção aos detalhes foi surpreendente. Voltarei a contratar com certeza.",
-          dataAvaliacao: "2025-10-06T09:15:00",
-        },
-      ];
-      setAvaliacoes(exemplos);
-      localStorage.setItem("avaliacoes", JSON.stringify(exemplos));
-    }
+    // Carregar avaliações reais da API (Redis)
+    const carregarAvaliacoes = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/avaliacoes");
+        
+        if (response.ok) {
+          const data = await response.json();
+          setAvaliacoes(data);
+        } else {
+          console.error("Erro ao carregar avaliações");
+          setAvaliacoes([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar avaliações:", error);
+        setAvaliacoes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarAvaliacoes();
   }, []);
 
   const notasMap: { [key: string]: number } = {
@@ -210,7 +189,17 @@ export default function AvaliacoesPage() {
 
           {/* Lista de Avaliações */}
           <div className="space-y-6">
-            {avaliacoes.length === 0 ? (
+            {loading ? (
+              <Card className="text-center py-12">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Carregando avaliações...
+                </h3>
+                <p className="text-gray-600">
+                  Aguarde um momento
+                </p>
+              </Card>
+            ) : avaliacoes.length === 0 ? (
               <Card className="text-center py-12">
                 <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
