@@ -59,12 +59,6 @@ export default function Header() {
           >
             Ver Avaliações
           </Link>
-          <Link
-            href="/qrcode"
-            className="text-gray-700 hover:text-primary font-medium transition-colors duration-300"
-          >
-            QR Code
-          </Link>
         </nav>
 
         {/* CTA Button Desktop */}
@@ -114,13 +108,6 @@ export default function Header() {
               className="text-gray-700 hover:text-primary font-medium transition-colors duration-300 py-2"
             >
               Ver Avaliações
-            </Link>
-            <Link
-              href="/qrcode"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-gray-700 hover:text-primary font-medium transition-colors duration-300 py-2"
-            >
-              QR Code
             </Link>
             <Link
               href="/avaliar"

@@ -49,11 +49,6 @@ export default function Footer() {
                   Ver Avaliações
                 </Link>
               </li>
-              <li>
-                <Link href="/qrcode" className="text-gray-600 hover:text-primary transition-colors">
-                  QR Code
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -63,11 +58,11 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-gray-600 text-sm">
                 <Phone className="w-4 h-4 text-primary" />
-                (11) 99999-9999
+                (81) 99123-6035
               </li>
               <li className="flex items-center gap-2 text-gray-600 text-sm">
                 <Mail className="w-4 h-4 text-primary" />
-                contato@fgservices.com.br
+                adm@fgservices.com.br
               </li>
               <li className="flex items-start gap-2 text-gray-600 text-sm">
                 <MapPin className="w-4 h-4 text-primary mt-0.5" />
@@ -81,9 +76,7 @@ export default function Footer() {
             <h3 className="font-bold text-gray-900 mb-4">Atendimento</h3>
             <div className="space-y-2 text-sm text-gray-600">
               <p>Segunda a Sexta</p>
-              <p className="font-semibold text-primary">08:00 - 18:00</p>
-              <p className="mt-3">Sábado</p>
-              <p className="font-semibold text-primary">08:00 - 12:00</p>
+              <p className="font-semibold text-primary">08:00 - 17:00</p>
             </div>
           </div>
         </div>

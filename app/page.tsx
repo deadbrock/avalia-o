@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -19,6 +20,45 @@ import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 
 export default function Home() {
+  const [mediaGeral, setMediaGeral] = useState("0.0");
+  const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregarEstatisticas = async () => {
+      try {
+        const response = await fetch('/api/avaliacoes');
+        if (response.ok) {
+          const result = await response.json();
+          const avaliacoes = result.data || [];
+          
+          if (avaliacoes.length > 0) {
+            const notasMap: { [key: string]: number } = {
+              Excelente: 5,
+              Boa: 4,
+              Regular: 3,
+              Ruim: 2,
+              Péssima: 1,
+            };
+            
+            const soma = avaliacoes.reduce((acc: number, av: any) => {
+              return acc + (notasMap[av.avaliacaoGeral] || 0);
+            }, 0);
+            
+            const media = (soma / avaliacoes.length).toFixed(1);
+            setMediaGeral(media);
+            setTotalAvaliacoes(avaliacoes.length);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    carregarEstatisticas();
+  }, []);
   return (
     <>
       <Header />
@@ -100,18 +140,33 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.8 }}
               className="flex flex-wrap items-center justify-center gap-8 mt-16 text-sm"
             >
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-500" fill="#eab308" />
-                  ))}
-                </div>
-                <span className="text-gray-600 font-medium">4.9/5.0 Avaliação</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                <span className="text-gray-600 font-medium">100+ Clientes Satisfeitos</span>
-              </div>
+              {!loading && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((estrela) => (
+                        <Star 
+                          key={estrela} 
+                          className={`w-5 h-5 ${
+                            estrela <= Math.round(parseFloat(mediaGeral)) 
+                              ? "text-yellow-500 fill-yellow-500" 
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-gray-600 font-medium">
+                      {mediaGeral}/5.0 Avaliação
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
+                    <span className="text-gray-600 font-medium">
+                      {totalAvaliacoes > 0 ? `${totalAvaliacoes}+` : "0"} Clientes Satisfeitos
+                    </span>
+                  </div>
+                </>
+              )}
             </motion.div>
           </motion.div>
 
