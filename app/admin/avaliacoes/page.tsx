@@ -43,13 +43,21 @@ export default function AvaliacoesPage() {
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [showDeleteAll, setShowDeleteAll] = useState(false);
 
-  const carregarAvaliacoes = () => {
-    const stored = localStorage.getItem("avaliacoes");
-    if (stored) {
-      const data = JSON.parse(stored);
-      setAvaliacoes(data);
-      setFilteredAvaliacoes(data);
-    } else {
+  const carregarAvaliacoes = async () => {
+    try {
+      const response = await fetch('/api/avaliacoes');
+      if (response.ok) {
+        const result = await response.json();
+        const data = result.data || [];
+        setAvaliacoes(data);
+        setFilteredAvaliacoes(data);
+      } else {
+        console.error('Erro ao carregar avaliações');
+        setAvaliacoes([]);
+        setFilteredAvaliacoes([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar avaliações:', error);
       setAvaliacoes([]);
       setFilteredAvaliacoes([]);
     }
@@ -83,63 +91,46 @@ export default function AvaliacoesPage() {
   // Deletar avaliação individual
   const deletarAvaliacao = async (id: number) => {
     try {
-      // Deletar do localStorage
-      const novasAvaliacoes = avaliacoes.filter(av => av.id !== id);
-      localStorage.setItem("avaliacoes", JSON.stringify(novasAvaliacoes));
+      const response = await fetch(`/api/avaliacoes?id=${id}`, {
+        method: 'DELETE',
+      });
       
-      // Tentar deletar da API (Redis)
-      try {
-        const response = await fetch('/api/avaliacoes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ avaliacoes: novasAvaliacoes }),
-        });
-        
-        if (!response.ok) {
-          console.warn('Erro ao sincronizar com API, mas deletado localmente');
-        }
-      } catch (apiError) {
-        console.warn('Erro ao sincronizar com API:', apiError);
+      if (response.ok) {
+        // Recarregar avaliações após deletar
+        await carregarAvaliacoes();
+        setConfirmDelete(null);
+        alert('Avaliação deletada com sucesso!');
+      } else {
+        const error = await response.json();
+        console.error('Erro ao deletar:', error);
+        alert('Erro ao deletar avaliação: ' + (error.error || 'Erro desconhecido'));
       }
-      
-      // Atualizar estado
-      setAvaliacoes(novasAvaliacoes);
-      setConfirmDelete(null);
-      alert('Avaliação deletada com sucesso!');
     } catch (error) {
       console.error('Erro ao deletar avaliação:', error);
-      alert('Erro ao deletar avaliação');
+      alert('Erro ao deletar avaliação. Verifique sua conexão.');
     }
   };
 
   // Limpar todas as avaliações
   const limparTodasAvaliacoes = async () => {
     try {
-      // Limpar localStorage
-      localStorage.setItem("avaliacoes", JSON.stringify([]));
+      const response = await fetch('/api/avaliacoes?deleteAll=true', {
+        method: 'DELETE',
+      });
       
-      // Tentar limpar da API (Redis)
-      try {
-        const response = await fetch('/api/avaliacoes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ avaliacoes: [] }),
-        });
-        
-        if (!response.ok) {
-          console.warn('Erro ao sincronizar com API, mas limpado localmente');
-        }
-      } catch (apiError) {
-        console.warn('Erro ao sincronizar com API:', apiError);
+      if (response.ok) {
+        // Recarregar avaliações após limpar
+        await carregarAvaliacoes();
+        setShowDeleteAll(false);
+        alert('Todas as avaliações foram deletadas com sucesso!');
+      } else {
+        const error = await response.json();
+        console.error('Erro ao limpar:', error);
+        alert('Erro ao limpar avaliações: ' + (error.error || 'Erro desconhecido'));
       }
-      
-      // Atualizar estado
-      setAvaliacoes([]);
-      setShowDeleteAll(false);
-      alert('Todas as avaliações foram deletadas!');
     } catch (error) {
       console.error('Erro ao limpar avaliações:', error);
-      alert('Erro ao limpar avaliações');
+      alert('Erro ao limpar avaliações. Verifique sua conexão.');
     }
   };
 

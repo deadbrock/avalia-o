@@ -77,15 +77,31 @@ export default function RelatoriosPage() {
   const [loading, setLoading] = useState<string | null>(null);
 
   useEffect(() => {
+    // Carregar planos de ação do localStorage (ainda não tem API para planos)
     const storedPlanos = localStorage.getItem("planosAcao");
     if (storedPlanos) {
       setPlanos(JSON.parse(storedPlanos));
     }
 
-    const storedAvaliacoes = localStorage.getItem("avaliacoes");
-    if (storedAvaliacoes) {
-      setAvaliacoes(JSON.parse(storedAvaliacoes));
-    }
+    // Carregar avaliações da API
+    const carregarAvaliacoes = async () => {
+      try {
+        const response = await fetch('/api/avaliacoes');
+        if (response.ok) {
+          const result = await response.json();
+          const data = result.data || [];
+          setAvaliacoes(data);
+        } else {
+          console.error('Erro ao carregar avaliações');
+          setAvaliacoes([]);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar avaliações:', error);
+        setAvaliacoes([]);
+      }
+    };
+    
+    carregarAvaliacoes();
   }, []);
 
   const gerarRelatorio = (tipo: string) => {

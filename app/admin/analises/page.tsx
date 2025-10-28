@@ -71,10 +71,24 @@ export default function AnalisesPage() {
   const [planosGerados, setPlanosGerados] = useState<any[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("avaliacoes");
-    if (stored) {
-      setAvaliacoes(JSON.parse(stored));
-    }
+    const carregarAvaliacoes = async () => {
+      try {
+        const response = await fetch('/api/avaliacoes');
+        if (response.ok) {
+          const result = await response.json();
+          const data = result.data || [];
+          setAvaliacoes(data);
+        } else {
+          console.error('Erro ao carregar avaliações');
+          setAvaliacoes([]);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar avaliações:', error);
+        setAvaliacoes([]);
+      }
+    };
+    
+    carregarAvaliacoes();
   }, []);
 
   const notasMap: { [key: string]: number } = {

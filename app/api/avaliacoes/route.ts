@@ -65,3 +65,58 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// DELETE - Deletar avaliação(ões)
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const deleteAll = searchParams.get('deleteAll');
+    
+    // Buscar avaliações existentes
+    const avaliacoes = await redisGet<any[]>('avaliacoes') || [];
+    
+    // Deletar todas as avaliações
+    if (deleteAll === 'true') {
+      await redisSet('avaliacoes', []);
+      return NextResponse.json({
+        success: true,
+        message: 'Todas as avaliações foram deletadas!',
+        data: [],
+      });
+    }
+    
+    // Deletar avaliação específica por ID
+    if (id) {
+      const avaliacaoId = parseInt(id);
+      const novasAvaliacoes = avaliacoes.filter((av: any) => av.id !== avaliacaoId);
+      
+      if (novasAvaliacoes.length === avaliacoes.length) {
+        return NextResponse.json(
+          { success: false, error: 'Avaliação não encontrada' },
+          { status: 404 }
+        );
+      }
+      
+      await redisSet('avaliacoes', novasAvaliacoes);
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Avaliação deletada com sucesso!',
+        data: novasAvaliacoes,
+      });
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'ID ou parâmetro deleteAll necessário' },
+      { status: 400 }
+    );
+    
+  } catch (error) {
+    console.error('Erro ao deletar avaliação:', error);
+    return NextResponse.json(
+      { success: false, error: 'Erro ao deletar avaliação' },
+      { status: 500 }
+    );
+  }
+}
+

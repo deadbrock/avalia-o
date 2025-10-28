@@ -46,11 +46,9 @@ export default function DashboardPage() {
         const response = await fetch('/api/avaliacoes');
         const result = await response.json();
         
-        if (result.success && result.data.length > 0) {
+        if (result.success && result.data) {
           const data = result.data;
           setAvaliacoes(data);
-          // Salvar no localStorage como cache
-          localStorage.setItem("avaliacoes", JSON.stringify(data));
       
       // Calcular estatísticas
       const now = new Date();
@@ -98,21 +96,12 @@ export default function DashboardPage() {
             problematicas,
           });
         } else {
-          // Fallback: carregar do localStorage
-          const stored = localStorage.getItem("avaliacoes");
-          if (stored) {
-            const data = JSON.parse(stored);
-            setAvaliacoes(data);
-          }
+          console.warn('Nenhuma avaliação encontrada na API');
+          setAvaliacoes([]);
         }
       } catch (error) {
         console.error('Erro ao carregar avaliações:', error);
-        // Fallback: carregar do localStorage
-        const stored = localStorage.getItem("avaliacoes");
-        if (stored) {
-          const data = JSON.parse(stored);
-          setAvaliacoes(data);
-        }
+        setAvaliacoes([]);
       }
     };
     
