@@ -43,8 +43,11 @@ export default function AvaliacoesPage() {
         const response = await fetch("/api/avaliacoes");
         
         if (response.ok) {
-          const data = await response.json();
-          setAvaliacoes(data);
+          const result = await response.json();
+          // A API retorna { success, data, total }
+          const avaliacoesData = result.data || result || [];
+          // Garantir que é sempre um array
+          setAvaliacoes(Array.isArray(avaliacoesData) ? avaliacoesData : []);
         } else {
           console.error("Erro ao carregar avaliações");
           setAvaliacoes([]);
