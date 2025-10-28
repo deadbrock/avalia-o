@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "FG Services - Avaliação de Serviços de Limpeza",
   description: "Avalie os serviços de limpeza da FG Services e ajude-nos a melhorar continuamente",
+  icons: {
+    icon: '/logo-fg.png',
+    shortcut: '/logo-fg.png',
+    apple: '/logo-fg.png',
+  },
 };
 
 export default function RootLayout({
